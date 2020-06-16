@@ -1,6 +1,7 @@
 package dev.consearch.demo
 
 import com.beust.klaxon.Klaxon
+import dev.consearch.demo.domain.Concert
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -21,8 +22,6 @@ class ConcertAcceptanceTest {
     @DisplayName("공연 정보 등록")
     @Test
     fun createConcert() {
-        data class Concert(val name: String)
-
         val concert = Concert("Behemoth");
         val inputJson = Klaxon().toJsonString(concert)
 
