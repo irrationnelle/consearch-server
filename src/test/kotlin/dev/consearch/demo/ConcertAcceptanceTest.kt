@@ -24,7 +24,7 @@ class ConcertAcceptanceTest {
     @DisplayName("공연 정보 등록")
     @Test
     fun createConcert() {
-        val concert = Concert("Behemoth");
+        val concert = Concert("Behemoth")
         val inputJson = Klaxon().toJsonString(concert)
 
         val response = webTestClient.post()
@@ -33,20 +33,20 @@ class ConcertAcceptanceTest {
             .body(Mono.just(inputJson), String::class.java)
             .exchange()
             .expectStatus()
-            .isCreated()
+            .isCreated
             .expectHeader().contentType(MediaType.APPLICATION_JSON)
             .expectHeader().exists("Location")
             .expectBody(Concert::class.java)
-            .returnResult();
+            .returnResult()
 
-        assertThat(response.responseBody?.name).isEqualTo("Behemoth");
+        assertThat(response.responseBody?.name).isEqualTo(concert.name)
     }
 
     @DisplayName("공연 목록 받아오기")
     @Test
     fun retrieveConcerts() {
         // given
-        val firstConcert = Concert("Behemoth");
+        val firstConcert = Concert("Behemoth")
         val firstInputJson = Klaxon().toJsonString(firstConcert)
 
         webTestClient.post()
@@ -55,9 +55,9 @@ class ConcertAcceptanceTest {
             .body(Mono.just(firstInputJson), String::class.java)
             .exchange()
             .expectStatus()
-            .isCreated()
+            .isCreated
 
-        val secondConcert = Concert("Shining");
+        val secondConcert = Concert("Shining")
         val secondInputJson = Klaxon().toJsonString(secondConcert)
 
         webTestClient.post()
@@ -66,7 +66,7 @@ class ConcertAcceptanceTest {
             .body(Mono.just(secondInputJson), String::class.java)
             .exchange()
             .expectStatus()
-            .isCreated()
+            .isCreated
 
         // when
         val response: EntityExchangeResult<List<Concert>> = webTestClient.get().uri("/concerts")
@@ -78,5 +78,7 @@ class ConcertAcceptanceTest {
 
         // then
         assertThat(response.responseBody?.size).isEqualTo(2)
+        assertThat(response.responseBody?.get(0)?.name).isEqualTo(firstConcert.name)
+        assertThat(response.responseBody?.get(1)?.name).isEqualTo(secondConcert.name)
     }
 }
