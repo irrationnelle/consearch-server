@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import java.net.URI
 
@@ -15,8 +16,7 @@ class ConcertController {
     lateinit var concertRepository: ConcertRepository
 
     @PostMapping("/concerts")
-    fun createStation(): ResponseEntity<Concert>? {
-        val concert = Concert("Behemoth");
+    fun createStation(@RequestBody concert: Concert): ResponseEntity<Concert>? {
         val persistConcert = concertRepository.save(concert);
 
         return ResponseEntity
