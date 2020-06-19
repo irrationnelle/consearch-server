@@ -27,13 +27,19 @@ class ConcertAcceptanceTest {
         val concert = Concert("Behemoth");
         val inputJson = Klaxon().toJsonString(concert)
 
-        webTestClient.post()
+        val response = webTestClient.post()
             .uri("/concerts")
             .contentType(MediaType.APPLICATION_JSON)
             .body(Mono.just(inputJson), String::class.java)
             .exchange()
             .expectStatus()
             .isCreated()
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
+            .expectHeader().exists("Location")
+            .expectBody(Concert::class.java)
+            .returnResult();
+
+        assertThat(response.responseBody?.name).isEqualTo("Behemoth");
     }
 
     @DisplayName("공연 목록 받아오기")
@@ -71,9 +77,6 @@ class ConcertAcceptanceTest {
             .returnResult()
 
         // then
-
-        // then
         assertThat(response.responseBody?.size).isEqualTo(2)
-
     }
 }
