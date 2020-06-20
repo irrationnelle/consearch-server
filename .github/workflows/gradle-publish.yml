@@ -47,4 +47,4 @@ jobs:
       run: gcloud components update
 
     - name: deploy to cloud run
-      run: gcloud beta run deploy consearch-server-cloud-run --image gcr.io/${{secrets.GCP_PROJECT_ID}}/kotlin-test --platform managed --region=asia-northeast1 --quiet --set-env-vars="SPRING_DATASOURCE_URL=${{secrets.dataUrl}}, SPRING_DATASOURCE_USERNAME=${{secrets.username}}, SPRING_DATASOURCE_PASSWORD=${{secrets.password}}"
+      run: gcloud beta run deploy consearch-server-cloud-run --image gcr.io/${{secrets.GCP_PROJECT_ID}}/kotlin-test --platform managed --region=asia-northeast1 --quiet --set-env-vars="SPRING_DATASOURCE_URL=${{secrets.DATAURL}}, SPRING_DATASOURCE_USERNAME=${{secrets.USERNAME}}, SPRING_DATASOURCE_PASSWORD=${{secrets.PASSWORD}}"
