@@ -27,9 +27,6 @@ jobs:
     - name: Test before build # THE MOST IMPORTANT!
       run: ./gradlew test
 
-    - name: Build with Gradle
-      run: ./gradlew bootJar
-
     - name: setting gcloud
       uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
       with:
