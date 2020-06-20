@@ -1,0 +1,50 @@
+# This workflow will build a package using Gradle and then publish it to GitHub packages when a release is created
+# For more information see: https://github.com/actions/setup-java#publishing-using-gradle
+
+name: Gradle Package
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 11
+      uses: actions/setup-java@v1
+      with:
+        java-version: '11.0.7' # The JDK version to make available on the path.
+        java-package: jdk # (jre, jdk, or jdk+fx) - defaults to jdk
+        architecture: x64
+        server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
+        settings-path: ${{ github.workspace }} # location for the settings.xml file
+
+    - name: Test before build # THE MOST IMPORTANT!
+      run: ./gradlew test
+
+    - name: Build with Gradle
+      run: ./gradlew bootJar
+
+    - name: setting gcloud
+      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      with:
+        version: '290.0.1'
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        export_default_credentials: true
+      
+    - name: build and create docker image to cloud build
+      run: gcloud builds submit .
+
+    - name: install gcloud beta component
+      run: gcloud components install beta
+
+    - name: update gcloud component update
+      run: gcloud components update
+
+    - name: deploy to cloud run
+      run: gcloud beta run deploy consearch-server-cloud-run --image gcr.io/${{secrets.GCP_PROJECT_ID}}/kotlin-test --platform managed --region=asia-northeast1 --quiet --set-env-vars="SPRING_DATASOURCE_URL=${{secrets.dataUrl}}, SPRING_DATASOURCE_USERNAME=${{secrets.username}}, SPRING_DATASOURCE_PASSWORD=${{secrets.password}}"
