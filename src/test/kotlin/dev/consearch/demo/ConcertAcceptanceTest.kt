@@ -10,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWeb
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.annotation.DirtiesContext
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.EntityExchangeResult
 import org.springframework.test.web.reactive.server.WebTestClient
 import reactor.core.publisher.Mono
@@ -17,6 +18,7 @@ import reactor.core.publisher.Mono
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
+@ActiveProfiles("test")
 class ConcertAcceptanceTest {
     @Autowired
     lateinit var webTestClient: WebTestClient
