@@ -54,4 +54,25 @@ class ConcertAcceptanceTest() {
         assertThat(response.responseBody?.get(0)?.name).isEqualTo(firstConcert.name)
         assertThat(response.responseBody?.get(1)?.name).isEqualTo(secondConcert.name)
     }
+
+
+    @DisplayName("공연 디테일 정보 받기")
+    @Test
+    fun retrieveConcert() {
+        // given
+        val concert = Concert("Behemoth")
+        val concertId = concertHttpTest.createConcertRequest(concert);
+
+        // when
+        val response = concertHttpTest.retrieveConcert(concertId);
+
+        // then
+        assertThat(response.responseBody).isNotNull
+            .hasFieldOrPropertyWithValue("title", "Behemoth")
+            .hasFieldOrPropertyWithValue("address", "Mariboes gate 3-5, 0179 Oslo, Norway")
+            .hasFieldOrPropertyWithValue("price", 20000)
+            .hasFieldOrPropertyWithValue("timetable", "2020-06-21T21:30:00+09:00")
+
+        assertThat(response.responseBody?.artists).isNotEmpty.contains(artist);
+    }
 }
