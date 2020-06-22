@@ -62,7 +62,8 @@ class ConcertAcceptanceTest() {
     fun retrieveConcert() {
         // given
         val concert = Concert("Behemoth")
-        val concertId = concertHttpTest.createConcertRequest(concert);
+        val concertId = concertHttpTest.createConcertRequest(concert).responseBody?.id;
+        val artist = Artist()
 
         // when
         val response = concertHttpTest.retrieveConcert(concertId);

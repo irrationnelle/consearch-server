@@ -14,35 +14,35 @@ class ConcertHttpTest(private val webTestClient: WebTestClient) {
         val inputJson = Klaxon().toJsonString(concert)
 
         return webTestClient.post()
-                .uri(domainUri)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(Mono.just(inputJson), String::class.java)
-                .exchange()
-                .expectStatus()
-                .isCreated
-                .expectHeader().contentType(MediaType.APPLICATION_JSON)
-                .expectHeader().exists("Location")
-                .expectBody(Concert::class.java)
-                .returnResult()
+            .uri(domainUri)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(Mono.just(inputJson), String::class.java)
+            .exchange()
+            .expectStatus()
+            .isCreated
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
+            .expectHeader().exists("Location")
+            .expectBody(Concert::class.java)
+            .returnResult()
     }
 
-    fun retrieveConcert(id: Long): EntityExchangeResult<Concert?> {
-        val uri = "${domainUri}/${id}"
+    fun retrieveConcert(id: Long?): EntityExchangeResult<Concert?> {
+        val uri = if (id != null) "${domainUri}/${id}" else "${domainUri}/0"
 
         return webTestClient.get().uri(uri)
-                .exchange()
-                .expectStatus().isOk
-                .expectHeader().contentType(MediaType.APPLICATION_JSON)
-                .expectBody(Concert::class.java)
-                .returnResult()
+            .exchange()
+            .expectStatus().isOk
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
+            .expectBody(Concert::class.java)
+            .returnResult()
     }
 
     fun retrieveConcerts(): EntityExchangeResult<List<Concert?>> {
         return webTestClient.get().uri(domainUri)
-                .exchange()
-                .expectStatus().isOk
-                .expectHeader().contentType(MediaType.APPLICATION_JSON)
-                .expectBodyList(Concert::class.java)
-                .returnResult()
+            .exchange()
+            .expectStatus().isOk
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
+            .expectBodyList(Concert::class.java)
+            .returnResult()
     }
 }
