@@ -1,5 +1,6 @@
 package dev.consearch.demo
 
+import dev.consearch.demo.domain.Artist
 import dev.consearch.demo.domain.Concert
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -73,6 +74,6 @@ class ConcertAcceptanceTest() {
             .hasFieldOrPropertyWithValue("price", 20000)
             .hasFieldOrPropertyWithValue("timetable", "2020-06-21T21:30:00+09:00")
 
-        assertThat(response.responseBody?.artists).isNotEmpty.contains(artist);
+        assertThat(response.responseBody?.artists).isNotEmpty.containsExactly(artist)
     }
 }
