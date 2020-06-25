@@ -31,7 +31,8 @@ class ConcertAcceptanceTest() {
     @DisplayName("공연 정보 등록")
     @Test
     fun createConcert() {
-        val concert = Concert("Behemoth")
+        val artist = Artist("Behemoth", "BlackMetal")
+        val concert = Concert("Behemoth", mutableListOf(artist));
         val response = concertHttpTest.createConcertRequest(concert)
 
         assertThat(response.responseBody?.name).isEqualTo(concert.name)
@@ -41,10 +42,12 @@ class ConcertAcceptanceTest() {
     @Test
     fun retrieveConcerts() {
         // given
-        val firstConcert = Concert("Behemoth")
+        val artist = Artist("Behemoth", "BlackMetal")
+        val firstConcert = Concert("Behemoth", mutableListOf(artist));
         concertHttpTest.createConcertRequest(firstConcert)
 
-        val secondConcert = Concert("Shining")
+        val secondArtist = Artist("Shining", "SuicidalBlackMetal")
+        val secondConcert = Concert("Shining", mutableListOf(secondArtist))
         concertHttpTest.createConcertRequest(secondConcert)
 
         // when
@@ -61,9 +64,9 @@ class ConcertAcceptanceTest() {
     @Test
     fun retrieveConcert() {
         // given
-        val concert = Concert("Behemoth")
+        val artist = Artist("Behemoth", "BlackMetal")
+        val concert = Concert("Behemoth", mutableListOf(artist));
         val concertId = concertHttpTest.createConcertRequest(concert).responseBody?.id;
-        val artist = Artist()
 
         // when
         val response = concertHttpTest.retrieveConcert(concertId);
