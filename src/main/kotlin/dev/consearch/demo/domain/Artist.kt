@@ -6,7 +6,7 @@ import javax.persistence.GenerationType
 import javax.persistence.Id
 
 @Entity
-class Artist {
+class Artist(val name: String, val genre: String) {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     var id: Long = 0
