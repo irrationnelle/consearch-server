@@ -13,6 +13,8 @@ class ConcertController(val concertRepository: ConcertRepository) {
     fun createStation(@RequestBody concert: Concert): ResponseEntity<Concert?> {
         val persistConcert = concertRepository.save(concert)
 
+        val persistArtist = artistRepository.findById(concert.artists[0].id);
+
         return ResponseEntity
             .created(URI.create("/concerts/${persistConcert.id}"))
             .body(concertRepository.save(concert))
