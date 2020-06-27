@@ -4,8 +4,7 @@ import com.beust.klaxon.Klaxon
 import dev.consearch.demo.application.dto.CreateArtistRequestView
 import dev.consearch.demo.application.dto.SearchArtistRequestView
 import dev.consearch.demo.domain.Artist
-import dev.consearch.demo.domain.Concert
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -48,7 +47,7 @@ class ArtistAcceptanceTest() {
         val artist = CreateArtistRequestView("Behemoth", "BlackMetal")
         val inputJson = Klaxon().toJsonString(artist)
 
-         webTestClient.post()
+        val responseArtist = webTestClient.post()
             .uri(domainUri)
             .contentType(MediaType.APPLICATION_JSON)
             .body(Mono.just(inputJson), String::class.java)
@@ -58,6 +57,9 @@ class ArtistAcceptanceTest() {
             .expectHeader().contentType(MediaType.APPLICATION_JSON)
             .expectHeader().exists("Location")
             .expectBody(Artist::class.java)
-            .returnResult()
+            .returnResult().responseBody
+
+        assertThat(responseArtist).hasFieldOrPropertyWithValue("name", artist.name)
+            .hasFieldOrPropertyWithValue("genre", artist.genre)
     }
 }
