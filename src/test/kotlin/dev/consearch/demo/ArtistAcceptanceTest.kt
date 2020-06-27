@@ -1,21 +1,18 @@
 package dev.consearch.demo
 
-import com.beust.klaxon.Klaxon
 import dev.consearch.demo.application.dto.CreateArtistRequestView
 import dev.consearch.demo.application.dto.SearchArtistRequestView
-import dev.consearch.demo.domain.Artist
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.http.MediaType
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.util.UriBuilder
-import reactor.core.publisher.Mono
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -24,6 +21,13 @@ import reactor.core.publisher.Mono
 class ArtistAcceptanceTest() {
     @Autowired
     lateinit var webTestClient: WebTestClient
+
+    lateinit var artistHttpTest: ArtistHttpTest
+
+    @BeforeEach
+    fun setUp() {
+        artistHttpTest = ArtistHttpTest(webTestClient)
+    }
 
     val domainUri = "/artists"
 
@@ -45,21 +49,25 @@ class ArtistAcceptanceTest() {
     @Test
     fun registerArtist() {
         val artist = CreateArtistRequestView("Behemoth", "BlackMetal")
-        val inputJson = Klaxon().toJsonString(artist)
 
-        val responseArtist = webTestClient.post()
-            .uri(domainUri)
-            .contentType(MediaType.APPLICATION_JSON)
-            .body(Mono.just(inputJson), String::class.java)
-            .exchange()
-            .expectStatus()
-            .isCreated
-            .expectHeader().contentType(MediaType.APPLICATION_JSON)
-            .expectHeader().exists("Location")
-            .expectBody(Artist::class.java)
-            .returnResult().responseBody
+        val responseArtist = artistHttpTest.createArtistRequest(artist)
 
         assertThat(responseArtist).hasFieldOrPropertyWithValue("name", artist.name)
             .hasFieldOrPropertyWithValue("genre", artist.genre)
+    }
+
+    @DisplayName("등록한 아티스트를 조회해서 가져온다")
+    @Test
+    fun retrieveArtistRegistered() {
+        val searchArtist = SearchArtistRequestView("Behemoth")
+
+        val getWithQueryParameter = { uriBuilder: UriBuilder ->
+            uriBuilder.path("${domainUri}/").queryParam("name", searchArtist.name).build()
+        }
+
+        webTestClient.get().uri(getWithQueryParameter)
+            .exchange()
+            .expectStatus().isNotFound
+
     }
 }
