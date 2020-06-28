@@ -20,7 +20,7 @@ import org.springframework.web.util.UriBuilder
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
 @ActiveProfiles("test")
-class ConcertAcceptanceTest() {
+class ConcertAcceptanceTest {
     @Autowired
     lateinit var webTestClient: WebTestClient
 
@@ -49,7 +49,7 @@ class ConcertAcceptanceTest() {
         }
         val responseArtist = artistHttpTest.retrieveRequest(getWithQueryParameter, Artist::class.java).responseBody
 
-        val concert = Concert("Behemoth", mutableListOf(responseArtist));
+        val concert = Concert("Behemoth", "Mariboes gate 3-5, 0179 Oslo, Norway", 20000,"2020-06-21T21:30:00+09:00", mutableListOf(responseArtist) );
         val response = concertHttpTest.createRequest(concert,domainUri, Concert::class.java)
 
         // then
@@ -69,7 +69,7 @@ class ConcertAcceptanceTest() {
 
         // when
         val registeredArtist = artistHttpTest.createRequest(artist, "/artists", Artist::class.java).responseBody
-        val concert = Concert("Behemoth", mutableListOf(registeredArtist));
+        val concert = Concert("Behemoth", "Mariboes gate 3-5, 0179 Oslo, Norway", 20000,"2020-06-21T21:30:00+09:00", mutableListOf(registeredArtist) );
         val response = concertHttpTest.createRequest(concert,domainUri, Concert::class.java)
 
         // then
@@ -82,12 +82,12 @@ class ConcertAcceptanceTest() {
         // given
         val artist = CreateArtistRequestView("Behemoth", "BlackMetal")
         val responseArtist = artistHttpTest.createRequest(artist, "/artists", Artist::class.java).responseBody
-        val firstConcert = Concert("Behemoth", mutableListOf(responseArtist));
+        val firstConcert = Concert("Behemoth", "Mariboes gate 3-5, 0179 Oslo, Norway", 20000,"2020-06-21T21:30:00+09:00", mutableListOf(responseArtist));
         concertHttpTest.createRequest(firstConcert, domainUri, Concert::class.java)
 
         val secondArtist = CreateArtistRequestView("Shining", "SuicidalBlackMetal")
         val responseSecondArtist = artistHttpTest.createRequest(secondArtist, "/artists", Artist::class.java).responseBody
-        val secondConcert = Concert("Shining", mutableListOf(responseSecondArtist))
+        val secondConcert = Concert("Shining", "Mariboes gate 3-5, 0179 Oslo, Norway", 20000,"2020-06-21T21:30:00+09:00", mutableListOf(responseSecondArtist))
         concertHttpTest.createRequest(secondConcert, domainUri, Concert::class.java)
 
         // when
@@ -107,7 +107,7 @@ class ConcertAcceptanceTest() {
         // given
         val artist = CreateArtistRequestView("Behemoth", "BlackMetal")
         val createdArtist = artistHttpTest.createRequest(artist, "/artists", Artist::class.java).responseBody
-        val concert = Concert("Behemoth", mutableListOf(createdArtist));
+        val concert = Concert("Behemoth", "Mariboes gate 3-5, 0179 Oslo, Norway", 20000,"2020-06-21T21:30:00+09:00", mutableListOf(createdArtist) );
         val concertId = concertHttpTest.createRequest(concert, "/concerts", Concert::class.java).responseBody?.id;
 
         // when
@@ -120,6 +120,6 @@ class ConcertAcceptanceTest() {
             .hasFieldOrPropertyWithValue("price", 20000)
             .hasFieldOrPropertyWithValue("timetable", "2020-06-21T21:30:00+09:00")
 
-        assertThat(response.responseBody?.artists).isNotEmpty.containsExactly(createdArtist)
+        assertThat(response.responseBody?.artists).isNotEmpty.extracting("name").contains(artist.name)
     }
 }
