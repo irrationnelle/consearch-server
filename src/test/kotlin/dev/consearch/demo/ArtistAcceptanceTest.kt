@@ -25,12 +25,13 @@ class ArtistAcceptanceTest {
 
     lateinit var httpTest: HttpTest<Artist>
 
+    val domainUri = "/artists"
+
     @BeforeEach
     fun setUp() {
         httpTest = HttpTest(webTestClient)
     }
 
-    val domainUri = "/artists"
 
     @DisplayName("아티스트 등록을 하지 않았는데 아티스트 이름으로 아티스트 정보 조회를 하면 404 statusCode 를 보여준다.")
     @Test
