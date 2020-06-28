@@ -2,6 +2,7 @@ package dev.consearch.demo
 
 import dev.consearch.demo.application.dto.CreateArtistRequestView
 import dev.consearch.demo.application.dto.SearchArtistRequestView
+import dev.consearch.demo.domain.Artist
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -18,15 +19,15 @@ import org.springframework.web.util.UriBuilder
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
 @ActiveProfiles("test")
-class ArtistAcceptanceTest() {
+class ArtistAcceptanceTest {
     @Autowired
     lateinit var webTestClient: WebTestClient
 
-    lateinit var artistHttpTest: ArtistHttpTest
+    lateinit var httpTest: HttpTest<Artist>
 
     @BeforeEach
     fun setUp() {
-        artistHttpTest = ArtistHttpTest(webTestClient)
+        httpTest = HttpTest(webTestClient)
     }
 
     val domainUri = "/artists"
@@ -49,8 +50,7 @@ class ArtistAcceptanceTest() {
     @Test
     fun registerArtist() {
         val artist = CreateArtistRequestView("Behemoth", "BlackMetal")
-
-        val responseArtist = artistHttpTest.createArtistRequest(artist)
+        val responseArtist = httpTest.createRequest(artist, domainUri, Artist::class.java).responseBody
 
         assertThat(responseArtist).hasFieldOrPropertyWithValue("name", artist.name)
             .hasFieldOrPropertyWithValue("genre", artist.genre)
