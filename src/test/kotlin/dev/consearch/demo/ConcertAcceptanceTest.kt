@@ -1,5 +1,7 @@
 package dev.consearch.demo
 
+import dev.consearch.demo.application.dto.CreateArtistRequestView
+import dev.consearch.demo.application.dto.SearchArtistRequestView
 import dev.consearch.demo.domain.Artist
 import dev.consearch.demo.domain.Concert
 import org.assertj.core.api.Assertions.assertThat
@@ -12,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.web.util.UriBuilder
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -21,42 +24,81 @@ class ConcertAcceptanceTest() {
     @Autowired
     lateinit var webTestClient: WebTestClient
 
-    lateinit var concertHttpTest: ConcertHttpTest
+    lateinit var concertHttpTest: HttpTest<Concert>
+    lateinit var artistHttpTest: HttpTest<Artist>
+
+    val domainUri = "/concerts"
 
     @BeforeEach
     fun setUp() {
-        this.concertHttpTest = ConcertHttpTest(webTestClient)
+        concertHttpTest = HttpTest(webTestClient)
+        artistHttpTest = HttpTest(webTestClient)
     }
 
-    @DisplayName("공연 정보 등록")
+    @DisplayName("등록한 아티스트를 조회하여 공연 정보 등록")
     @Test
     fun createConcert() {
-        val artist = Artist("Behemoth", "BlackMetal")
-        val concert = Concert("Behemoth", mutableListOf(artist));
-        val response = concertHttpTest.createConcertRequest(concert)
+        // given
+        val artist = CreateArtistRequestView("Behemoth", "BlackMetal")
+        artistHttpTest.createRequest(artist, "/artists", Artist::class.java).responseBody
 
-        assertThat(response.responseBody?.name).isEqualTo(concert.name)
+
+        // when
+        val searchArtist = SearchArtistRequestView(artist.name);
+        val getWithQueryParameter = { uriBuilder: UriBuilder ->
+            uriBuilder.path("${domainUri}/").queryParam("name", searchArtist.name).build()
+        }
+        val responseArtist = artistHttpTest.retrieveRequest(getWithQueryParameter, Artist::class.java).responseBody
+
+        val concert = Concert("Behemoth", mutableListOf(responseArtist));
+        val response = concertHttpTest.createRequest(concert,domainUri, Concert::class.java)
+
+        // then
+        assertThat(response.responseBody?.title).isEqualTo(concert.title)
+    }
+
+    @DisplayName("아티스트를 조회한 이후 아티스트가 없어 아티스트를 등록한 이후 공연 정보 등록")
+    @Test
+    fun createConcertWithRegisterArtist() {
+        // given
+        val artist = CreateArtistRequestView("Behemoth", "BlackMetal")
+        val searchArtist = SearchArtistRequestView(artist.name);
+        val getWithQueryParameter = { uriBuilder: UriBuilder ->
+            uriBuilder.path("/artists/").queryParam("name", searchArtist.name).build()
+        }
+         webTestClient.get().uri(getWithQueryParameter).exchange().expectStatus().isNotFound
+
+        // when
+        val registeredArtist = artistHttpTest.createRequest(artist, "/artists", Artist::class.java).responseBody
+        val concert = Concert("Behemoth", mutableListOf(registeredArtist));
+        val response = concertHttpTest.createRequest(concert,domainUri, Concert::class.java)
+
+        // then
+        assertThat(response.responseBody?.title).isEqualTo(concert.title)
     }
 
     @DisplayName("공연 목록 받아오기")
     @Test
     fun retrieveConcerts() {
         // given
-        val artist = Artist("Behemoth", "BlackMetal")
-        val firstConcert = Concert("Behemoth", mutableListOf(artist));
-        concertHttpTest.createConcertRequest(firstConcert)
+        val artist = CreateArtistRequestView("Behemoth", "BlackMetal")
+        val responseArtist = artistHttpTest.createRequest(artist, "/artists", Artist::class.java).responseBody
+        val firstConcert = Concert("Behemoth", mutableListOf(responseArtist));
+        concertHttpTest.createRequest(firstConcert, domainUri, Concert::class.java)
 
-        val secondArtist = Artist("Shining", "SuicidalBlackMetal")
-        val secondConcert = Concert("Shining", mutableListOf(secondArtist))
-        concertHttpTest.createConcertRequest(secondConcert)
+        val secondArtist = CreateArtistRequestView("Shining", "SuicidalBlackMetal")
+        val responseSecondArtist = artistHttpTest.createRequest(secondArtist, "/artists", Artist::class.java).responseBody
+        val secondConcert = Concert("Shining", mutableListOf(responseSecondArtist))
+        concertHttpTest.createRequest(secondConcert, domainUri, Concert::class.java)
 
         // when
-        val response = concertHttpTest.retrieveConcerts();
+        val response = concertHttpTest.retrieveAllRequest(domainUri, Concert::class.java);
 
         // then
         assertThat(response.responseBody?.size).isEqualTo(2)
-        assertThat(response.responseBody?.get(0)?.name).isEqualTo(firstConcert.name)
-        assertThat(response.responseBody?.get(1)?.name).isEqualTo(secondConcert.name)
+        assertThat(response.responseBody?.get(0)?.title).isEqualTo(firstConcert.title)
+        assertThat(response.responseBody?.get(0)?.artists?.get(0)).isEqualToComparingFieldByField(responseArtist)
+        assertThat(response.responseBody?.get(1)?.title).isEqualTo(secondConcert.title)
     }
 
 
@@ -64,12 +106,13 @@ class ConcertAcceptanceTest() {
     @Test
     fun retrieveConcert() {
         // given
-        val artist = Artist("Behemoth", "BlackMetal")
-        val concert = Concert("Behemoth", mutableListOf(artist));
-        val concertId = concertHttpTest.createConcertRequest(concert).responseBody?.id;
+        val artist = CreateArtistRequestView("Behemoth", "BlackMetal")
+        val createdArtist = artistHttpTest.createRequest(artist, "/artists", Artist::class.java).responseBody
+        val concert = Concert("Behemoth", mutableListOf(createdArtist));
+        val concertId = concertHttpTest.createRequest(concert, "/concerts", Concert::class.java).responseBody?.id;
 
         // when
-        val response = concertHttpTest.retrieveConcert(concertId);
+        val response = concertHttpTest.retrieveRequest("/concerts/${concertId}", Concert::class.java)
 
         // then
         assertThat(response.responseBody).isNotNull
@@ -78,6 +121,6 @@ class ConcertAcceptanceTest() {
             .hasFieldOrPropertyWithValue("price", 20000)
             .hasFieldOrPropertyWithValue("timetable", "2020-06-21T21:30:00+09:00")
 
-        assertThat(response.responseBody?.artists).isNotEmpty.containsExactly(artist)
+        assertThat(response.responseBody?.artists).isNotEmpty.containsExactly(createdArtist)
     }
 }
