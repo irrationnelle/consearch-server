@@ -37,16 +37,15 @@ class ConcertAcceptanceTest() {
 
     @DisplayName("등록한 아티스트를 조회하여 공연 정보 등록")
     @Test
-    fun createConcert() {
+    fun createConcertWhenArtistIsAlreadyRegistered() {
         // given
         val artist = CreateArtistRequestView("Behemoth", "BlackMetal")
         artistHttpTest.createRequest(artist, "/artists", Artist::class.java).responseBody
 
-
         // when
         val searchArtist = SearchArtistRequestView(artist.name);
         val getWithQueryParameter = { uriBuilder: UriBuilder ->
-            uriBuilder.path("${domainUri}/").queryParam("name", searchArtist.name).build()
+            uriBuilder.path("/artists/").queryParam("name", searchArtist.name).build()
         }
         val responseArtist = artistHttpTest.retrieveRequest(getWithQueryParameter, Artist::class.java).responseBody
 
@@ -59,7 +58,7 @@ class ConcertAcceptanceTest() {
 
     @DisplayName("아티스트를 조회한 이후 아티스트가 없어 아티스트를 등록한 이후 공연 정보 등록")
     @Test
-    fun createConcertWithRegisterArtist() {
+    fun createConcertWithoutRegisteredArtist() {
         // given
         val artist = CreateArtistRequestView("Behemoth", "BlackMetal")
         val searchArtist = SearchArtistRequestView(artist.name);
