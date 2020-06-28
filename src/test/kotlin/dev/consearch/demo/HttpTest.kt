@@ -26,11 +26,30 @@ class HttpTest<T>(private val webTestClient: WebTestClient) {
     }
 
     fun <T> retrieveRequest(uriSetting: (uriBuilder: UriBuilder) -> URI, expectClass: Class<T>)
-            : EntityExchangeResult<T> = webTestClient.get()
+            : EntityExchangeResult<T?> = webTestClient.get()
         .uri(uriSetting)
         .exchange()
         .expectStatus().isOk
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody(expectClass)
         .returnResult()
+
+    fun <T> retrieveRequest(uriString: String, expectClass: Class<T>)
+            : EntityExchangeResult<T?> = webTestClient.get()
+        .uri(uriString)
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody(expectClass)
+        .returnResult()
+
+
+    fun retrieveAllRequest(uriString: String, expectClass: Class<T>): EntityExchangeResult<List<T?>>
+        = webTestClient.get().uri(uriString)
+            .exchange()
+            .expectStatus().isOk
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
+            .expectBodyList(expectClass)
+            .returnResult()
+
 }
