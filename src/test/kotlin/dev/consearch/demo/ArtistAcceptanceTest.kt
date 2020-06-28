@@ -59,15 +59,18 @@ class ArtistAcceptanceTest {
     @DisplayName("등록한 아티스트를 조회해서 가져온다")
     @Test
     fun retrieveArtistRegistered() {
-        val searchArtist = SearchArtistRequestView("Behemoth")
+        // given
+        val artist = CreateArtistRequestView("Behemoth", "BlackMetal")
+        val createdArtist = httpTest.createRequest(artist, domainUri, Artist::class.java).responseBody
 
+        // when
+        val searchArtist = SearchArtistRequestView(artist.name)
         val getWithQueryParameter = { uriBuilder: UriBuilder ->
             uriBuilder.path("${domainUri}/").queryParam("name", searchArtist.name).build()
         }
+        val responseArtist = httpTest.retrieveRequest(getWithQueryParameter, Artist::class.java).responseBody;
 
-        webTestClient.get().uri(getWithQueryParameter)
-            .exchange()
-            .expectStatus().isNotFound
-
+        // then
+        assertThat(responseArtist).isEqualToComparingFieldByField(createdArtist);
     }
 }
