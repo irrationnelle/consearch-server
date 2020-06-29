@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*
 import java.net.URI
 
 @RestController
+@CrossOrigin(origins = ["https://consearch.rase.dev"])
 class ConcertController(val concertRepository: ConcertRepository) {
 
     @PostMapping("/concerts")

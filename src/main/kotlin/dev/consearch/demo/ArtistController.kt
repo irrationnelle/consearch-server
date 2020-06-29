@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*
 import java.net.URI
 
 @RestController
+@CrossOrigin(origins = ["https://consearch.rase.dev"])
 class ArtistController (val artistRepository: ArtistRepository){
     @PostMapping("/artists")
     fun createStation(@RequestBody artist: CreateArtistRequestView): ResponseEntity<Artist?> {
