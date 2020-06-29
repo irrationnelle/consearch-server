@@ -7,7 +7,7 @@ class Concert(val title: String,
               val address: String,
               val price: Int,
               val timetable: String,
-              @ManyToMany(fetch = FetchType.LAZY)
+              @ManyToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
               @JoinColumn(name = "artist_id")
               var artists: MutableList<Artist?>
 ) {
