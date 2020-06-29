@@ -11,7 +11,7 @@ import java.net.URI
 class ConcertController(val concertRepository: ConcertRepository) {
 
     @PostMapping("/concerts")
-    fun createStation(@RequestBody concert: Concert): ResponseEntity<Concert?> {
+    fun createConcert(@RequestBody concert: Concert): ResponseEntity<Concert?> {
         val persistConcert = concertRepository.save(concert)
 
         return ResponseEntity
