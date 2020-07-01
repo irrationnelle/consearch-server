@@ -2,6 +2,7 @@ package dev.consearch.demo
 
 import dev.consearch.demo.application.dto.CreateArtistRequestView
 import dev.consearch.demo.application.dto.SearchArtistRequestView
+import dev.consearch.demo.application.dto.CreateConcertRequestView
 import dev.consearch.demo.domain.Artist
 import dev.consearch.demo.domain.Concert
 import org.assertj.core.api.Assertions.assertThat
@@ -39,18 +40,10 @@ class ConcertAcceptanceTest {
     @Test
     fun createConcertWhenArtistIsAlreadyRegistered() {
         // given
-        val artist = CreateArtistRequestView("Behemoth", "BlackMetal")
-        artistHttpTest.createRequest(artist, "/artists", Artist::class.java).responseBody
+        val artist = Artist("Behemoth", "BlackMetal")
 
-        // when
-        val searchArtist = SearchArtistRequestView(artist.name);
-        val getWithQueryParameter = { uriBuilder: UriBuilder ->
-            uriBuilder.path("/artists/").queryParam("name", searchArtist.name).build()
-        }
-        val responseArtist = artistHttpTest.retrieveRequest(getWithQueryParameter, Artist::class.java).responseBody
-
-        val concert = Concert("Behemoth", "Mariboes gate 3-5, 0179 Oslo, Norway", 20000,"2020-06-21T21:30:00+09:00", mutableListOf(responseArtist) );
-        val response = concertHttpTest.createRequest(concert,domainUri, Concert::class.java)
+        val concert = CreateConcertRequestView("Behemoth", "Mariboes gate 3-5, 0179 Oslo, Norway", 20000,"2020-06-21T21:30:00+09:00", mutableListOf(artist));
+        val response = concertHttpTest.createRequest(concert, domainUri, CreateConcertRequestView::class.java)
 
         // then
         assertThat(response.responseBody?.title).isEqualTo(concert.title)
