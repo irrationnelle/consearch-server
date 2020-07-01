@@ -8,6 +8,6 @@ class Artist(val name: String, val genre: String) {
     @GeneratedValue(strategy = GenerationType.AUTO)
     var id: Long = 0
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
-    var concerts: MutableList<Concert?> = mutableListOf()
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "artist")
+    var concertArtists: MutableSet<ConcertArtist?> = mutableSetOf()
 }
