@@ -7,6 +7,6 @@ class CreateConcertRequestView(val title: String,
                                val address: String,
                                val price: Int,
                                val timetable: String,
-                               val artists: MutableList<Artist>) {
+                               val artists: MutableList<Artist>?) {
     fun toConcert(): Concert = Concert(title, address, price, timetable)
 }
