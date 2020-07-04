@@ -44,7 +44,7 @@ class HttpTest<T>(private val webTestClient: WebTestClient) {
         .returnResult()
 
 
-    fun retrieveAllRequest(uriString: String, expectClass: Class<T>): EntityExchangeResult<List<T?>>
+    fun <T> retrieveAllRequest(uriString: String, expectClass: Class<T>): EntityExchangeResult<List<T?>>
         = webTestClient.get().uri(uriString)
             .exchange()
             .expectStatus().isOk
