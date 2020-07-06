@@ -66,7 +66,7 @@ class ConcertAcceptanceTest() {
         val response = concertHttpTest.retrieveAllRequest(domainUri, Concert::class.java);
 
         // then
-        assertThat(response.responseBody?.size).isEqualTo(2)
+        assertThat(response.responseBody).hasSize(2)
         assertThat(response.responseBody?.get(0)?.title).isEqualTo(createConcert.title)
         assertThat(response.responseBody?.get(1)?.title).isEqualTo(createSecondConcert.title)
         assertThat(response.responseBody?.get(1)?.artists).element(0).hasFieldOrPropertyWithValue("name", createSecondArtist.name)
@@ -91,5 +91,21 @@ class ConcertAcceptanceTest() {
             .hasFieldOrPropertyWithValue("timetable", "2020-06-21T21:30:00+09:00")
 
         assertThat(response.responseBody?.artists).element(0).hasFieldOrPropertyWithValue("name", createArtist.name)
+    }
+
+    @DisplayName("날짜가 지난 공연 목록을 제외하고 공연 목록 받아오기")
+    @Test
+    fun retrieveConcertsInDate() {
+        // given
+        concertHttpTest.createRequest(createConcert, domainUri, ConcertResponseView::class.java)
+        val createSecondArtist = CreateArtistRequestView("Shining", "SuicidalBlackMetal")
+        val createSecondConcert = CreateConcertRequestView("Shining", "Stanisława Noakowskiego 16, 00-666 Warszawa, Poland", 15000, "2020-07-06T20:00:00+09:00", listOf(createSecondArtist));
+        concertHttpTest.createRequest(createSecondConcert, domainUri, ConcertResponseView::class.java)
+
+        // when
+        val response = concertHttpTest.retrieveAllRequest(domainUri, Concert::class.java);
+
+        // then
+        assertThat(response.responseBody).hasSize(1)
     }
 }
