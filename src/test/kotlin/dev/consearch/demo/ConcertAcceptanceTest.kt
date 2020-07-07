@@ -15,6 +15,8 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -99,7 +101,10 @@ class ConcertAcceptanceTest() {
         // given
         concertHttpTest.createRequest(createConcert, domainUri, ConcertResponseView::class.java)
         val createSecondArtist = CreateArtistRequestView("Shining", "SuicidalBlackMetal")
-        val createSecondConcert = CreateConcertRequestView("Shining", "Stanisława Noakowskiego 16, 00-666 Warszawa, Poland", 15000, "2020-07-06T20:00:00+09:00", listOf(createSecondArtist));
+        val currentDate = LocalDateTime.now()
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+        val formatted = currentDate.format(formatter)
+        val createSecondConcert = CreateConcertRequestView("Shining", "Stanisława Noakowskiego 16, 00-666 Warszawa, Poland", 15000, "$formatted+09:00", listOf(createSecondArtist));
         concertHttpTest.createRequest(createSecondConcert, domainUri, ConcertResponseView::class.java)
 
         // when
