@@ -6,5 +6,5 @@ import org.springframework.data.repository.CrudRepository
 interface ConcertRepository : CrudRepository<Concert, Long?> {
     fun findByTitle(title: String): Concert?
 
-    fun findByTimetableAfter(now: String): List<Concert>
+    fun findByTimetableAfter(now: String): MutableIterable<Concert>
 }
