@@ -9,6 +9,8 @@ import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.net.URI
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @RestController
 @CrossOrigin(origins = ["https://consearch.rase.dev"])
@@ -24,6 +26,14 @@ class ConcertController(val concertRepository: ConcertRepository, val concertSer
     @GetMapping("/concerts")
     fun retrieveConcerts(): ResponseEntity<List<ConcertResponseView>> = ResponseEntity.ok().body(ConcertResponseView.listOf(concertRepository.findAll()))
 
+    @GetMapping("/concerts/available")
+    fun retrieveFilteredConcertsByDate(): ResponseEntity<List<ConcertResponseView>> {
+        val currentDate = LocalDateTime.now()
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")
+        val formatted: String = currentDate.format(formatter)
+
+        return ResponseEntity.ok().body(ConcertResponseView.listOf(concertRepository.findByTimetableAfter(formatted)))
+    }
 
     @GetMapping("/concerts/{id}")
     fun retrieveConcert(@PathVariable id: Long): ResponseEntity<ConcertResponseView?> = try {
