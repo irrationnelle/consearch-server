@@ -102,15 +102,20 @@ class ConcertAcceptanceTest() {
         concertHttpTest.createRequest(createConcert, domainUri, ConcertResponseView::class.java)
         val createSecondArtist = CreateArtistRequestView("Shining", "SuicidalBlackMetal")
         val currentDate = LocalDateTime.now()
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")
         val formatted = currentDate.format(formatter)
         val createSecondConcert = CreateConcertRequestView("Shining", "Stanisława Noakowskiego 16, 00-666 Warszawa, Poland", 15000, "$formatted+09:00", listOf(createSecondArtist));
         concertHttpTest.createRequest(createSecondConcert, domainUri, ConcertResponseView::class.java)
 
+        val createThirdArtist = CreateArtistRequestView("Periphery", "Metalcore")
+        val createThirdConcert = CreateConcertRequestView("Periphery", "1805 Geary Blvd San Francisco, CA 94115 USA", 30000, "2020-07-05T20:00:00+09:00", listOf(createThirdArtist));
+        concertHttpTest.createRequest(createThirdConcert, domainUri, ConcertResponseView::class.java)
+
         // when
-        val response = concertHttpTest.retrieveAllRequest(domainUri, Concert::class.java);
+        val response = concertHttpTest.retrieveAllRequest("/concerts/available", Concert::class.java);
 
         // then
         assertThat(response.responseBody).hasSize(1)
+//        assertThat(response.responseBody).element(1).hasFieldOrPropertyWithValue("timetable", "2020-07-08T01:14+09:00")
     }
 }
