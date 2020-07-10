@@ -52,4 +52,12 @@ class HttpTest<T>(private val webTestClient: WebTestClient) {
             .expectBodyList(expectClass)
             .returnResult()
 
+    fun <T> retrieveAllRequest(uriSetting: (uriBuilder: UriBuilder) -> URI, expectClass: Class<T>): EntityExchangeResult<List<T?>>
+            = webTestClient.get().uri(uriSetting)
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBodyList(expectClass)
+        .returnResult()
+
 }
