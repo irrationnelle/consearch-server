@@ -23,7 +23,7 @@ import java.time.format.DateTimeFormatter
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
 @ActiveProfiles("test")
-class ConcertAcceptanceTest() {
+class ConcertAcceptanceTest {
     @Autowired
     lateinit var webTestClient: WebTestClient
     lateinit var concertHttpTest: HttpTest<ConcertResponseView>
@@ -118,31 +118,5 @@ class ConcertAcceptanceTest() {
         // then
         assertThat(response.responseBody).hasSize(1)
 //        assertThat(response.responseBody).element(1).hasFieldOrPropertyWithValue("timetable", "2020-07-08T01:14+09:00")
-    }
-
-    @DisplayName("특정 장르의 공연 목록을 받아오기")
-    @Test
-    fun retrieveConcertsByGenre() {
-        // given
-        concertHttpTest.createRequest(createConcert, domainUri, ConcertResponseView::class.java)
-        val createSecondArtist = CreateArtistRequestView("Shining", "BlackMetal")
-        val currentDate = LocalDateTime.now()
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")
-        val formatted = currentDate.format(formatter)
-        val createSecondConcert = CreateConcertRequestView("Shining", "Stanisława Noakowskiego 16, 00-666 Warszawa, Poland", 15000, "$formatted+09:00", listOf(createSecondArtist));
-        concertHttpTest.createRequest(createSecondConcert, domainUri, ConcertResponseView::class.java)
-
-        val createThirdArtist = CreateArtistRequestView("Periphery", "Metalcore")
-        val createThirdConcert = CreateConcertRequestView("Periphery", "1805 Geary Blvd San Francisco, CA 94115 USA", 30000, "2020-07-05T20:00:00+09:00", listOf(createThirdArtist));
-        concertHttpTest.createRequest(createThirdConcert, domainUri, ConcertResponseView::class.java)
-
-        // when
-        val getWithQueryParameter = { uriBuilder: UriBuilder ->
-            uriBuilder.path("${domainUri}/").queryParam("genre", "BlackMetal").build()
-        }
-        val response = concertHttpTest.retrieveAllRequest(getWithQueryParameter, Concert::class.java);
-
-        // then
-        assertThat(response.responseBody).hasSize(2)
     }
 }
